@@ -12,7 +12,7 @@ services:
       MSSQL_DB: Stark-CRM
     networks:
       app_net:
-        ipv4_address: 10.0.23.2
+        ipv4_address: 10.1.23.2
 
   web:
     container_name: CRM-module-itg
