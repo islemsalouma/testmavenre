@@ -1,0 +1,20 @@
+version: "2"
+services:
+
+  web:
+    container_name: CRM-module-itg
+    build: .
+    ports:
+      - 8835:8080
+    networks:
+      app_net:
+        ipv4_address: 10.1.23.2
+      
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 10.1.23.0/24
+        gateway: 10.1.23.1

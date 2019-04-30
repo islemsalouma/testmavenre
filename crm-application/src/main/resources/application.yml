@@ -1,0 +1,9 @@
+# JWT : JSON WEB TOKEN PROPERTIES
+jwt:
+  header: Authorization
+  secret: password
+  expiration: 604800
+  route:
+    authentication:
+      path: auth
+      refresh: refresh

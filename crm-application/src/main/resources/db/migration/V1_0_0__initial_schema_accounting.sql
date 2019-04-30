@@ -1,0 +1,342 @@
+--/*
+--Deployment script for Accouting Database
+--Changes to this file may cause incorrect behavior and will be lost if
+--the code is regenerated.
+--*/
+--
+--GO
+--SET ANSI_NULLS, ANSI_PADDING, ANSI_WARNINGS, ARITHABORT, CONCAT_NULL_YIELDS_NULL, QUOTED_IDENTIFIER ON;
+--
+--SET NUMERIC_ROUNDABORT OFF;
+--
+--
+--GO
+--:setvar DatabaseName "Stark-COMPTA-ITG"
+--:setvar DefaultFilePrefix "Stark-COMPTA-ITG"
+--
+--
+--GO
+--:on error exit
+--GO
+--/*
+--Detect SQLCMD mode and disable script execution if SQLCMD mode is not supported.
+--To re-enable the script after enabling SQLCMD mode, execute the following:
+--SET NOEXEC OFF; 
+--*/
+--:setvar __IsSqlCmdEnabled "True"
+--GO
+--IF N'$(__IsSqlCmdEnabled)' NOT LIKE N'True'
+--    BEGIN
+--        PRINT N'SQLCMD mode must be enabled to successfully execute this script.';
+--        SET NOEXEC ON;
+--    END
+--
+--IF EXISTS (SELECT * FROM master.sys.databases WHERE name='Stark-COMPTA-ITG')
+--BEGIN
+--USE [master]
+--ALTER DATABASE [$(DatabaseName)]  SET SINGLE_USER WITH ROLLBACK IMMEDIATE
+--END
+--GO
+--DROP DATABASE IF EXISTS [$(DatabaseName)]
+--GO
+--
+--CREATE DATABASE [$(DatabaseName)]
+--
+--
+--GO
+--USE [$(DatabaseName)];
+--
+--
+--GO
+--
+--CREATE TABLE [UserTable] (
+--  [Id] numeric(19,0) NOT NULL IDENTITY,
+--  [CreatedBy] varchar(50) DEFAULT NULL,
+--  [CreatedDate] datetime2(0) DEFAULT NULL,
+--  [LastModifiedBy] varchar(50) DEFAULT NULL,
+--  [LastModifiedDate] datetime2(0) DEFAULT NULL,
+--  [Birthday] datetime2(0) DEFAULT NULL,
+--  [Email] varchar(50) NOT NULL,
+--  [Enabled] binary(1) NOT NULL,
+--  [FirstLogin] binary(1) DEFAULT NULL,
+--  [FirstName] varchar(50) NOT NULL,
+--  [Function] varchar(255) DEFAULT NULL,
+--  [Language] varchar(255) DEFAULT NULL,
+--  [LastName] varchar(50) NOT NULL,
+--  [PayedCharge] varchar(50) DEFAULT NULL,
+--  [ResetPasswordToken] varchar(255) DEFAULT NULL,
+--  [UserName] varchar(50) NOT NULL,
+--  [ManagerId] numeric(19,0) DEFAULT NULL,
+--  [FlagAdmin] binary(1) DEFAULT 0,
+--  [DesactivationDate] datetime2(0) DEFAULT NULL,
+--  PRIMARY KEY ([Id] ASC),
+--  UNIQUE  ([Email]),
+--  UNIQUE  ([UserName]),
+--  [IsDeleted]			BIT				NOT NULL,
+--  [DeletedToken]     NVARCHAR (255) NULL,
+--  FOREIGN KEY ([ManagerId]) REFERENCES [UserTable] ([Id])
+--)  ;
+--
+--CREATE INDEX [FKl9blkgio1nb00hot7kaxoy7q9] ON [UserTable] ([ManagerId]);
+--CREATE UNIQUE NONCLUSTERED INDEX [UK_hxlyukne40man0k5lh9dcdhp5] ON [UserTable](PayedCharge)
+--GO
+--
+--CREATE TABLE [Permission] (
+--  [Id] numeric(19,0) NOT NULL IDENTITY,
+--  [PermissionDescription] varchar(100) DEFAULT NULL,
+--  [PermissionName] varchar(50) DEFAULT NULL,
+--  [IsDeleted]			BIT				NOT NULL,
+--  [DeletedToken]     NVARCHAR (255) NULL,
+--  PRIMARY KEY ([Id] ASC),
+--  UNIQUE  ([PermissionName])
+--)  ;
+--GO
+--CREATE TABLE [Authority] (
+--  [Id] numeric(19,0) NOT NULL IDENTITY,
+--  [CreatedBy] varchar(50) DEFAULT NULL,
+--  [CreatedDate] datetime2(0) DEFAULT NULL,
+--  [LastModifiedBy] varchar(50) DEFAULT NULL,
+--  [LastModifiedDate] datetime2(0) DEFAULT NULL,
+--  [RoleDescription] varchar(100) DEFAULT NULL,
+--  [RoleName] varchar(50) NOT NULL,
+--  [IsDeleted]			BIT				NOT NULL,
+--  [DeletedToken]     NVARCHAR (255) NULL,
+--  PRIMARY KEY ([Id] ASC),
+--  UNIQUE  ([RoleName])
+--)  ;
+--GO
+--CREATE TABLE [AuthorityPermission] (
+--  [AuthorityId] numeric(19,0) NOT NULL,
+--  [PermissionId] numeric(19,0) NOT NULL,
+--  FOREIGN KEY ([AuthorityId]) REFERENCES [Authority] ([Id]),
+--  FOREIGN KEY ([PermissionId]) REFERENCES [Permission] ([Id]),
+--  PRIMARY KEY ([AuthorityId],[PermissionId])
+--)  ;
+--GO
+--CREATE TABLE [UserAuthority] (
+--  [UserId] numeric(19,0) NOT NULL,
+--  [AuthorityId] numeric(19,0) NOT NULL,
+--  FOREIGN KEY ([AuthorityId]) REFERENCES [Authority] ([Id]),
+--  FOREIGN KEY ([UserId]) REFERENCES [UserTable] ([Id]),
+--  PRIMARY KEY ([UserId],[AuthorityId])
+--)  ;
+--
+--GO
+--CREATE TABLE [ChartAccounts] (
+--    [Id]                bigint          IDENTITY (1, 1) NOT NULL,
+--    [Code]              INT 			NOT NULL,
+--    [Label]             NVARCHAR (255)  NOT NULL,
+--    [AccountParent]     bigint          NULL,
+--    [IsDeleted]			BIT				NOT NULL,
+--    [DeletedToken]      binary (255) NULL,
+--    CONSTRAINT [PK_ChartAccounts] PRIMARY KEY CLUSTERED ([Id] ASC),	
+--    CONSTRAINT [UniqueCodeChartAccounts] UNIQUE NONCLUSTERED ([DeletedToken] ASC, [Code] ASC),
+--);
+--
+--GO
+--CREATE TABLE [Journal] (
+--    [Id]                bigint          IDENTITY (1, 1) NOT NULL,
+--    [Code]              INT 			NOT NULL,
+--    [Label]             NVARCHAR (255)  NOT NULL,
+--    [IsDeleted]			BIT				NOT NULL,
+--    [DeletedToken]      binary (255) NULL,
+--    CONSTRAINT [PK_Journal] PRIMARY KEY CLUSTERED ([Id] ASC),
+--    CONSTRAINT [UniqueCodeJournal] UNIQUE NONCLUSTERED ([DeletedToken] ASC, [Code] ASC),
+--);
+--
+--GO
+--CREATE TABLE [Account] (
+--    [Id]                bigint          IDENTITY (1, 1) NOT NULL,
+--    [Code]              INT 			NOT NULL,
+--    [Label]             NVARCHAR (255)  NOT NULL,
+--	[CreditOpening]		bigint			NULL,
+--	[DebitOpening]		bigint			NULL,
+--	[PlanId]			bigint			NULL,
+--	[IsDeleted]			BIT				NOT NULL,
+--	[DeletedToken]    	binary (255) NULL,
+--    CONSTRAINT [PK_Account] PRIMARY KEY CLUSTERED ([Id] ASC),
+--    CONSTRAINT [UniqueCodeAccount] UNIQUE NONCLUSTERED ([DeletedToken] ASC, [Code] ASC),
+--);
+--
+--GO
+--
+--CREATE TABLE [TemplateAccounting] (
+--    [Id]                bigint          IDENTITY (1, 1) NOT NULL,
+--    [Label]             NVARCHAR (255)  NOT NULL,
+--	[JournalId]			bigint			NULL,
+--	[IsDeleted]			BIT				NOT NULL,
+--	[DeletedToken]      binary (255) NULL,
+--    CONSTRAINT [PK_TemplateAccounting] PRIMARY KEY CLUSTERED ([Id] ASC),
+--);
+--
+--GO
+--
+--CREATE TABLE [TemplateAccountingDetails] (
+--    [Id]               				bigint          IDENTITY (1, 1) NOT NULL,
+--    [Label]             			NVARCHAR (255)  NOT NULL,
+--	[AccountId]						bigint			NULL,
+--	[TemplateAccountingId]			bigint			NULL,
+--	[IsDeleted]						BIT				NOT NULL,
+--	[DeletedToken]     			    binary (255) NULL,
+--    CONSTRAINT [PK_TemplateAccountingDetails] PRIMARY KEY CLUSTERED ([Id] ASC),
+--);
+--
+--GO
+--
+--CREATE TABLE [DocumentAccount] (
+--    [Id]               		    bigint          IDENTITY (1, 1) NOT NULL,
+--    [CodeDocument]              NVARCHAR (255)      NULL,
+--	[CreationDocumentDate]	   	datetime2(7)		NULL,
+--	[DocumentDate]				datetime2(7)		NULL,
+--	[Reference]             	NVARCHAR (255)  	NOT NULL,
+--	[Status]             		NVARCHAR (255)  	NULL,
+--	[DocumentAmount]            float			  	NULL,
+--	[JournalId]					bigint			    NULL,
+--	[IsDeleted]					BIT				  	NULL,
+--	[DeletedToken]     			binary (255) 		NULL,
+--    CONSTRAINT [PK_DocumentAccount] PRIMARY KEY CLUSTERED ([Id] ASC),
+--    CONSTRAINT [UniqueCodeDocument] UNIQUE NONCLUSTERED ([DeletedToken] ASC, [CodeDocument] ASC),
+--);
+--
+--GO
+--
+--CREATE TABLE [DocumentAccountLine] (
+--    [Id]               		    bigint          IDENTITY (1, 1) NOT NULL,
+--	[Label]             		NVARCHAR (255)  	NOT NULL,
+--	[FlowAmount]            	float			  	NULL,
+--	[CreditAmount]            	float			  	NULL,
+--	[AccountId]					bigint			    NULL,
+--	[IsDeleted]					BIT				  	NULL,
+--	[DeletedToken]     			binary (255) 		NULL,
+--    CONSTRAINT [PK_DocumentAccountLine] PRIMARY KEY CLUSTERED ([Id] ASC),
+--);
+--
+--GO
+--
+--CREATE TABLE [FiscalYear] (
+--    [Id]               		    bigint          IDENTITY (1, 1) NOT NULL,
+--    [StartDate]              	date     			NOT NULL,
+--	[Label]             		NVARCHAR (255)		NOT NULL,
+--	[EndDate]            		date			  	NULL,
+--	[IsDeleted]					BIT				  	NULL,
+--	[DeletedToken]     			binary (255) 		NULL,
+--    CONSTRAINT [PK_FiscalYear] PRIMARY KEY CLUSTERED ([Id] ASC),
+--);
+--
+--GO
+--
+--
+--SET IDENTITY_INSERT [ChartAccounts] ON
+--/* insert classes*/
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (1,1,0,N'COMPTES DE CAPITEAUX',NULL)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (2,2,0,N'COMPTES D''IMMOBILISATIONS',NULL)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (3,3,0,N'COMPTES DE STOCKS ET EN-COURS',NULL)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (4,4,0,N'COMPTES DE TIERS',NULL)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (5,5,0,N'COMPTES FINANCIERS',NULL)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (6,6,0,N'COMPTES DE CHARGES',NULL)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (7,7,0,N'COMPTES DE PRODUITS',NULL)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (8,8,0,N'COMPTES SPECIAUX',NULL)
+--
+--/* insert accounts for class 1*/
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (9,10,0,N'Capital et réserves',1)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (10,12,0,N'Résultat de l''exercie',1)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (11,11,0,N'Report à nouveau',1)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (12,13,0,N'Subvention',1)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (13,14,0,N'Provisions réglémentées',1)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (14,15,0,N'Provisions pour risques et charges',1)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (15,16,0,N'Empruntes et dettes assimilées',1)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (16,17,0,N'Dettes rattachées à des participations',1)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (17,18,0,N'Comptes de liaisons des établissements et sociétes en participation',1)
+--
+--/* insert accounts for classe with code 10 */
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (18,101,0,N'Capital',9)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (19,104,0,N'Primes liées au capital social',9)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (20,105,0,N'Ecarts de réévaluation',9)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (21,106,0,N'Réserves',9)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (22,107,0,N'Ecart d''équivalence',9)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (23,108,0,N'Compte de l''exploitant',9)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (24,109,0,N'Actionnaires : capital souscrit - non appelé ',9)
+--
+--/* insert accounts for classe 2*/
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (25,21,0,N'Immobilisations incorporelles',2)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (26,22,0,N'Immobilisations corporelles',2)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (27,23,0,N'Immobilisations mises en concession',2)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (28,25,0,N'Immobilisations en cours',2)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (29,26,0,N'Parts dans des entreprises liées et créances sur des entreprises liées',2)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (30,27,0,N'Participations et créances rattachées à des participations',2)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (31,28,0,N'Autres immobilisations financières ',2)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (32,29,0,N'Amortissements des immobilisations',2)
+--
+--/* insert accounts for classe 3*/
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (33,31,0,N'Matières premières (et fournitures) ',3)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (34,32,0,N'Autres approvisionnements',3)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (35,33,0,N'En-cours de production de biens',3)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (36,34,0,N'En-cours de production de service',3)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (37,35,0,N'Stocks de produits',3)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (38,36,0,N'Compte à ouvrir, le cas échéant, sous l''intitulé  stocks provenant d''immobilisations',3)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (39,37,0,N'Stocks de marchandises',3)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (40,38,0,N'Lorsque l''entité tient un inventaire permanent en comptabilité générale',3)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (41,39,0,N'Provisions pour dépréciation des stocks et en-cours',3)
+--
+--/* insert accounts for classe 4*/
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (42,40,0,N'Fournisseurs et comptes rattachés',4)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (43,41,0,N'Clients et comptes rattachés',4)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (44,42,0,N'Personnel et comptes rattachés',4)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (45,43,0,N'Sécurité sociale et autres organismes sociaux',4)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (46,44,0,N'État et autres collectivités publiques',4)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (47,45,0,N'Groupe et associés',4)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (48,46,0,N'Débiteurs divers et créditeurs divers',4)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (49,47,0,N'Comptes transitoires ou d''attente',4)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (50,48,0,N'	Comptes de régularisation',4)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (51,49,0,N'Provisions pour dépréciation des comptes de tiers',4)
+--
+--/* insert accounts for classe 5*/
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (52,50,0,N'Valeurs mobilières de placement ',5)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (53,51,0,N'Banques, établissements financiers et assimilés',5)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (54,52,0,N'Instruments de trésorerie',5)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (55,53,0,N'Caisse',5)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (56,54,0,N'Régies d''avance et accréditifs',5)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (57,58,0,N'Virements internes',5)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (58,59,0,N'Provisions pour dépréciation des comptes financiers',5)
+--
+--/* insert accounts for classe 6*/
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (59,60,0,N'Achats',6)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (60,61,0,N'Services extérieurs',6)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (61,63,0,N'Impôts, taxes et versements assimilés',6)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (62,64,0,N'Charges de personnel',6)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (63,65,0,N'Autres charges de gestion courante',6)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (64,66,0,N'Charges financières',6)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (65,67,0,N'Charges exceptionnelles',6)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (66,68,0,N'Dotations aux amortissements et aux provisions',6)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (67,69,0,N'Participation des salariés - impôts sur les bénéfices et assimiles',6)
+--
+--/* insert accounts for classe 7*/
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (68,70,0,N'Ventes de produits fabriqués, prestations de services, marchandises',7)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (69,71,0,N'Production stockée (ou déstockage)',7)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (70,72,0,N'Production immobilisée',7)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (71,74,0,N'Subventions d''exploitation',7)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (72,75,0,N'Autres produits de gestion courante',7)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (73,76,0,N'Produits financiers',7)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (74,77,0,N'Produits exceptionnels',7)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (75,78,0,N'Reprises sur amortissements et provisions',7)
+--INSERT INTO [ChartAccounts] ([Id],[Code],[isDeleted],[Label],[AccountParent]) VALUES (76,79,0,N'Transferts de charges',7)
+--
+--SET IDENTITY_INSERT [ChartAccounts] OFF
+--
+--
+--INSERT INTO [Account] ([Code],[CreditOpening],[DebitOpening],[DeletedToken] ,[IsDeleted],[Label],[PlanId]) VALUES (101100,1,1,NULL,0,N'Capital souscrit non appelé',18)
+--INSERT INTO [Account] ([Code],[CreditOpening],[DebitOpening],[DeletedToken] ,[IsDeleted],[Label],[PlanId]) VALUES (101200,1,1,NULL,0,N'Capital souscrit et appelé, non versé',18)
+--INSERT INTO [Account] ([Code],[CreditOpening],[DebitOpening],[DeletedToken] ,[IsDeleted],[Label],[PlanId]) VALUES (104000,1,1,NULL,0,N'Primes d’émission, de fusion, d’apports…',19)
+--INSERT INTO [Account] ([Code],[CreditOpening],[DebitOpening],[DeletedToken] ,[IsDeleted],[Label],[PlanId]) VALUES (601000,1,1,NULL,0,N'Achats de matières premières et autres approvisionnements',59)
+--INSERT INTO [Account] ([Code],[CreditOpening],[DebitOpening],[DeletedToken] ,[IsDeleted],[Label],[PlanId]) VALUES (445510,1,1,NULL,0,N'TVA à décaisser',46)
+--INSERT INTO [Account] ([Code],[CreditOpening],[DebitOpening],[DeletedToken] ,[IsDeleted],[Label],[PlanId]) VALUES (444000,1,1,NULL,0,N'Etat Impôt sur les bénéfices',46)
+--INSERT INTO [Account] ([Code],[CreditOpening],[DebitOpening],[DeletedToken] ,[IsDeleted],[Label],[PlanId]) VALUES (603100,1,1,NULL,0,N'Variation de stock (matières premières et approvisionnements)',59)
+--
+--
+--INSERT INTO [Journal] ([Code],[DeletedToken],[IsDeleted],[Label]) VALUES (1,NULL,0,N'Achat')
+--INSERT INTO [Journal] ([Code],[DeletedToken],[IsDeleted],[Label]) VALUES (2,NULL,0,N'Vente')
+--INSERT INTO [Journal] ([Code],[DeletedToken],[IsDeleted],[Label]) VALUES (3,NULL,0,N'Trésorerie')
+--INSERT INTO [Journal] ([Code],[DeletedToken],[IsDeleted],[Label]) VALUES (4,NULL,0,N'Opération divers')
+--INSERT INTO [Journal] ([Code],[DeletedToken],[IsDeleted],[Label]) VALUES (5,NULL,0,N'Banque')
+--INSERT INTO [Journal] ([Code],[DeletedToken],[IsDeleted],[Label]) VALUES (6,NULL,0,N'Caisse')
+--
