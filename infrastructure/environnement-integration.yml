@@ -22,7 +22,11 @@ services:
     networks:
       app_net:
         ipv4_address: 10.1.23.3
-      
+    links:
+      - db
+    environment:
+      CATALINA_OPTS: -Dspring.config.location=/usr/local/tomcat/application.properties
+
 networks:
   app_net:
     driver: bridge
