@@ -1,6 +1,19 @@
 version: "2"
 services:
 
+  db:
+    container_name: crm-db
+    image: mcr.microsoft.com/mssql/server
+    #restart: always 
+    ports: 
+      - 1431:1433
+    environment:
+      SA_PASSWORD: SQL_DB_CRM@123*
+      MSSQL_DB: Stark-CRM
+    networks:
+      app_net:
+        ipv4_address: 10.0.23.2
+
   web:
     container_name: CRM-module-itg
     build: .
@@ -8,7 +21,7 @@ services:
       - 8835:8080
     networks:
       app_net:
-        ipv4_address: 10.1.23.2
+        ipv4_address: 10.1.23.3
       
 networks:
   app_net:
