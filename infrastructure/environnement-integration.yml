@@ -1,9 +1,9 @@
 version: "2"
 services:
 
-  crm-db:
+  db:
     container_name: crm-db
-    image: mcr.microsoft.com/mssql/server
+    image: microsoft/mssql-server-linux
     #restart: always 
     ports: 
       - 1433:1433
@@ -23,7 +23,7 @@ services:
       app_net:
         ipv4_address: 10.1.23.3
     links:
-      - crm-db
+      - db
     environment:
       CATALINA_OPTS: -Dspring.config.location=/usr/local/tomcat/application.properties
 
