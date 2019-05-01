@@ -3,8 +3,8 @@ services:
 
   db:
     container_name: crm-db
-    image: mcmoe/mssqldocker
-
+    image: mcmoe/mssqldocker:v1.0.0
+    
     #restart: always 
     ports: 
       - 1433:1433
