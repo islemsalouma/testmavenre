@@ -20,27 +20,12 @@
 		<module>crm-application</module>
 	</modules>
 	<scm>
-		<url>ssh://tfs2017:22/tfs/DotNetCollection/_git/crm%20test</url>
-		<connection>scm:git:ssh://tfs2017:22/tfs/DotNetCollection/_git/crm%20test</connection>
-		<developerConnection>scm:git:ssh://tfs2017:22/tfs/DotNetCollection/_git/crm%20test</developerConnection>
+		<url>git@github.com:islemsalouma/testmavenre.git</url>
+		<connection>scm:git:git@github.com:islemsalouma/testmavenre.git</connection>
+		<developerConnection>scm:git:git@github.com:islemsalouma/testmavenre.git</developerConnection>
 		<tag>${project.version}</tag>
 	</scm>
-    <distributionManagement>
-		<!-- Publish versioned releases here -->
-		<repository>
-			<id>nexus</id>
-			<name>My releases</name>
-			<url>http://192.168.1.224:8081/repository/maven-releases/</url>
-		</repository>
-
-		<!-- Publish snapshots here -->
-		<snapshotRepository>
-			<id>nexus</id>
-			<name>My snapshots</name>
-			<url>http://192.168.1.224:8081/repository/maven-snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
-
+    
 	<pluginRepositories>
 		<pluginRepository>
 			<id>SmartBearPluginRepository</id>
@@ -161,11 +146,7 @@
 		</dependency>
 	</dependencies>
 
-	<properties>
-		<sonar.host.url>http://192.168.1.53:9000</sonar.host.url>
-		<sonar.projectName>Stark-ERP Back - CRM Module</sonar.projectName>
-		<sonar.language>java</sonar.language>
-	</properties>
+
 
 	<build>
 		<plugins>
