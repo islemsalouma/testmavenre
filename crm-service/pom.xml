@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>fr.sparkit.crm</groupId>
 		<artifactId>crm-backend</artifactId>
-		<version>1.0.1-SNAPSHOT</version>
+		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>crm-service</artifactId>
 	<packaging>jar</packaging>
@@ -17,7 +17,7 @@
 		<dependency>
 			<groupId>fr.sparkit.crm</groupId>
 			<artifactId>crm-persistence</artifactId>
-			<version>1.01</version>
+			<version>${project.version}</version>
 		</dependency>
 		<!-- Spring Boot dependencies -->
 		<dependency>

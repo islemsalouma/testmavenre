@@ -4,10 +4,10 @@
   <parent>
     <groupId>fr.sparkit.crm</groupId>
     <artifactId>crm-backend</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>crm-persistence</artifactId>
-  <version>1.01</version>
+  <version>${project.version}</version>
 <packaging>jar</packaging>
   <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

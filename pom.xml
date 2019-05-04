@@ -9,7 +9,7 @@
 
 	<groupId>fr.sparkit.crm</groupId>
 	<artifactId>crm-backend</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
