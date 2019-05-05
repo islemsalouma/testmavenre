@@ -1,5 +1,4 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -10,7 +9,7 @@
 
 	<groupId>fr.sparkit.crm</groupId>
 	<artifactId>crm-backend</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -23,24 +22,8 @@
 		<url>git@github.com:islemsalouma/testmavenre.git</url>
 		<connection>scm:git:git@github.com:islemsalouma/testmavenre.git</connection>
 		<developerConnection>scm:git:git@github.com:islemsalouma/testmavenre.git</developerConnection>
-		<tag>0.0.1</tag>
+		<tag>${project.version}</tag>
 	</scm>
-	
-	<distributionManagement>
-		<!-- Publish versioned releases here -->
-		<repository>
-			<id>nexus</id>
-			<name>My releases</name>
-			<url>http://192.168.1.224:8081/repository/maven-releases/</url>
-		</repository>
-
-		<!-- Publish snapshots here -->
-		<snapshotRepository>
-			<id>nexus</id>
-			<name>My snapshots</name>
-			<url>http://192.168.1.224:8081/repository/maven-snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
     
 	<pluginRepositories>
 		<pluginRepository>
